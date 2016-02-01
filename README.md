@@ -1,4 +1,4 @@
-# Project 2: Arizona Holdem
+# Project 3: Hunt the Wumpus
 Collaboration: SOLO
 
-[Project Spec](https://sites.google.com/site/csc33516/texas-hold-em).
+[Project Spec](https://sites.google.com/site/csc33516/projects/hunt-the-wumpus)
