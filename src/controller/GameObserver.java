@@ -41,6 +41,8 @@ public class GameObserver extends JFrame {
 	private JButton shootLeft = new JButton("a");
 	private JButton shootRight = new JButton("d");
 	
+	private final static String nearPitMessage = "I can feel the wind...";
+	private final static String nearWumpusMessage = "I can smell the blood...";
 	public static void main(String[] args) {
 		new GameObserver().setVisible(true);
 	}
@@ -52,7 +54,7 @@ public class GameObserver extends JFrame {
 	private void frameProperties() {
 		setTitle("Hunt the Wumpus");
 		setLayout(new GridBagLayout());
-		setSize(1000, 768);
+		setSize(850, 615);
 		setLocation(200,200);
 		getContentPane().setBackground(new Color(102, 153, 153));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -73,29 +75,66 @@ public class GameObserver extends JFrame {
 		shootDown.addActionListener(new ShootDownListener());
 		shootLeft.addActionListener(new ShootLeftListener());
 	}
-	private void gameOverScreen(boolean gameOver) {
+	
+	private void gameOverShootScreen(boolean gameOver) {
 		if(gameOver){
 			this.gameTextArea.setText("Congratulations, you killed the wumpus!");
 		}else{
 			this.gameTextArea.setText("OH NO! You shot yourself!");
 		}
+		disableButtons();
+	}
+	
+	private void disableButtons() {
+		moveUp.setEnabled(false);
+		moveDown.setEnabled(false);
+		moveLeft.setEnabled(false);
+		moveRight.setEnabled(false);
+
+		shootUp.setEnabled(false);
+		shootDown.setEnabled(false);
+		shootLeft.setEnabled(false);
+		shootRight.setEnabled(false);
 		
 	}
+
+	private void nearObstacle() {
+		if(theMap.getNearPit() && theMap.getNearWumpus())
+			this.gameTextArea.setText(nearPitMessage + "\n " + nearWumpusMessage);
+		else if(theMap.getNearPit())
+			this.gameTextArea.setText(nearPitMessage);
+		else if(theMap.getNearWumpus())
+			this.gameTextArea.setText(nearWumpusMessage);
+		else
+			this.gameTextArea.setText("Nothing here");
+		
+	}
+	
+	private void gameOverMoveScreen(boolean isDead) {
+		if(isDead){
+			if(theMap.getDeath()){
+				this.gameTextArea.setText("Oh No, You've been eaten!");
+			}else{
+				this.gameTextArea.setText("Oh No, You fell in the pit!");
+			}
+			disableButtons();
+		}
+		
+	}
+	
 	private class ShootUpListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			boolean gameOver = theMap.shootArrow(Move.MOVE_UP);
-			gameOverScreen(gameOver);
+			gameOverShootScreen(gameOver);
 		}
-
-		
 	}
 	
 	private class ShootRightListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			boolean gameOver = theMap.shootArrow(Move.MOVE_RIGHT);
-			gameOverScreen(gameOver);
+			gameOverShootScreen(gameOver);
 		}
 	}
 	
@@ -103,7 +142,7 @@ public class GameObserver extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			boolean gameOver = theMap.shootArrow(Move.MOVE_DOWN);
-			gameOverScreen(gameOver);
+			gameOverShootScreen(gameOver);
 		}
 	}
 	
@@ -111,7 +150,7 @@ public class GameObserver extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			boolean gameOver = theMap.shootArrow(Move.MOVE_LEFT);
-			gameOverScreen(gameOver);
+			gameOverShootScreen(gameOver);
 		}
 	}
 	
@@ -119,13 +158,21 @@ public class GameObserver extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			theMap.setHunter(Move.MOVE_UP);
+			nearObstacle();
+			gameOverMoveScreen(theMap.getHunter().getIsDead());
 		}
+
+		
+
+		
 	}
 	
 	private class MoveRightListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			theMap.setHunter(Move.MOVE_RIGHT);
+			nearObstacle();
+			gameOverMoveScreen(theMap.getHunter().getIsDead());
 		}
 	}
 	
@@ -133,6 +180,8 @@ public class GameObserver extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			theMap.setHunter(Move.MOVE_LEFT);
+			nearObstacle();
+			gameOverMoveScreen(theMap.getHunter().getIsDead());
 		}
 	}
 	
@@ -140,6 +189,8 @@ public class GameObserver extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			theMap.setHunter(Move.MOVE_DOWN);
+			nearObstacle();
+			gameOverMoveScreen(theMap.getHunter().getIsDead());
 		}
 	}
 	
@@ -150,7 +201,9 @@ public class GameObserver extends JFrame {
 
 	private void setGameArea() {
 		twoViews = new JTabbedPane();
-		
+		twoViews.setPreferredSize(new Dimension(500, 525));
+		twoViews.setBackground(new Color(0, 51, 51));
+		twoViews.setForeground(new Color(102, 153, 153));
 		
 		twoViews.add(textView, "Text View");
 		twoViews.add(graphicsView, "Graphics View");
@@ -158,9 +211,9 @@ public class GameObserver extends JFrame {
 		//jFrameConstraints.weightx = 1.0;
 		//jFrameConstraints.weighty = 1.0;
 		jFrameConstraints.anchor = GridBagConstraints.LINE_START;
-		//jFrameConstraints.insets = new Insets(, 0,0,0);
+		//jFrameConstraints.insets = new Insets(0, 0,0,0);
 		jFrameConstraints.gridx = 1;
-		//jFrameConstraints.gridwidth = 0;
+		jFrameConstraints.gridwidth = 0;
 		//jFrameConstraints.gridy = 1;
 		add(twoViews, jFrameConstraints);
 	}

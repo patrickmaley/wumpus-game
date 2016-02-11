@@ -1,7 +1,6 @@
 package model;
 
 import java.util.Observable;
-import java.util.Observer;
 import java.util.Random;
 
 import controller.Move;
@@ -9,8 +8,10 @@ import controller.Move;
 public class GameMap extends Observable{
 	private GameCell[][] gameArray = new GameCell[10][10];
 	private Hunter hunter = new Hunter();
-	
+	private boolean nearPit = false;
+	private boolean nearWumpus = false;
 	Random rng = new Random();
+	private boolean killedByWumpus = false;
 	/*
 	 * Integer Mappings: 
 	 * Undiscovered Room = 0;
@@ -149,8 +150,6 @@ public class GameMap extends Observable{
 		// Upper Left
 		if (gameArray[(yCoordinate - 1 + rowLength) % rowLength][(xCoordinate - 1 + columnLength)% columnLength].getSlime())
 			gameArray[(yCoordinate - 1 + rowLength) % rowLength][(xCoordinate - 1 + columnLength)% columnLength].setGoop(true);
-		
-		
 	}
 	
 	//This method places the hunter into an empty cell. The idea is to start the Hunter in a location that is not
@@ -260,12 +259,87 @@ public class GameMap extends Observable{
 			this.getHunter().setXYPosition(row, (col -1 + 10) % 10);
 		}
 		
+		this.isDead(gameArray[this.getHunter().getXPosition()][this.getHunter().getYPosition()]);
+		
+		isNearPitOrWumpus(this.getHunter().getXPosition(), this.getHunter().getYPosition());
 		 // Do NOT forget to tell this object the state has changed 
 	    // Otherwise, notifyObservers does nothing.
 	    this.setChanged();
 	    // Otherwise, the next notifyObservers message will not 
 	    // send update messages to the registered Observers
 	    notifyObservers();
+	}
+
+	private void isNearPitOrWumpus(int i, int j) {
+		//Create Goop on slime cells
+			if(this.getNearPit() || this.getNearWumpus()){
+				this.setNearPit(false);
+				this.setNearWumpus(false);
+			}
+				//Up
+				if (gameArray[(i - 1 + 10) % 10][j].getPit())
+					this.setNearPit(true);
+					
+				//Up
+				if (gameArray[(i - 1 + 10) % 10][j].getWumpus())
+					this.setNearWumpus(true);
+				
+				// Right
+				if (gameArray[i][(j + 1) % 10].getPit())
+					this.setNearPit(true);
+				
+				// Right
+				if (gameArray[i][(j + 1) % 10].getWumpus())
+					this.setNearWumpus(true);
+				
+				// Down
+				if (gameArray[(i + 1) % 10][j].getPit())
+					this.setNearPit(true);
+				
+				// Down
+				if (gameArray[(i + 1) % 10][j].getWumpus())
+					this.setNearWumpus(true);
+				
+				
+				// Left
+				if (gameArray[i][(j - 1 + 10) % 10].getPit())
+					this.setNearPit(true);
+				
+				// Left
+				if (gameArray[i][(j - 1 + 10) % 10].getWumpus())
+					this.setNearWumpus(true);
+				
+				// Upper Right
+				if (gameArray[(i - 1 + 10) % 10][(j + 1) % 10].getPit())
+					this.setNearPit(true);
+				
+				// Upper Right
+				if (gameArray[(i - 1 + 10) % 10][(j + 1) % 10].getWumpus())
+					this.setNearWumpus(true);
+				
+				// Down Right
+				if (gameArray[(i + 1) % 10][(j + 1) % 10].getPit())
+					this.setNearPit(true);
+				
+				// Down Right
+				if (gameArray[(i + 1) % 10][(j + 1) % 10].getWumpus())
+					this.setNearWumpus(true);
+				
+				
+				// Down Left
+				if (gameArray[(i + 1) % 10][(j - 1 + 10)% 10].getPit())
+					this.setNearPit(true);
+				// Down Left
+				if (gameArray[(i + 1) % 10][(j - 1 + 10)% 10].getWumpus())
+					this.setNearWumpus(true);
+				
+				// Upper Left
+				if (gameArray[(i - 1 + 10) % 10][(j - 1 + 10)% 10].getPit())
+					this.setNearPit(true);
+				
+				if (gameArray[(i - 1 + 10) % 10][(j - 1 + 10)% 10].getWumpus())
+					this.setNearWumpus(true);
+		
 	}
 
 	public boolean shootArrow(Move direction) {
@@ -293,6 +367,8 @@ public class GameMap extends Observable{
 			}
 		}
 		
+		if(!wumpusKilled) this.getHunter().setIsDead(true);
+		
 		this.setChanged();
 	    // Otherwise, the next notifyObservers message will not 
 	    // send update messages to the registered Observers
@@ -303,5 +379,41 @@ public class GameMap extends Observable{
 		}else{
 			return false;
 		}
+	}
+
+	public void isDead(GameCell gameCell) {
+		if(gameCell.getWumpus() || gameCell.getPit()){
+			for (int i = 0; i < gameArray.length; i++) {
+				for (int j = 0; j < gameArray.length; j++) {
+					gameArray[i][j].setVisible(true);
+				}
+			}
+			if(gameCell.getWumpus()) killedByWumpus  = true;
+			this.getHunter().setIsDead(true);
+			this.setChanged();
+		    // Otherwise, the next notifyObservers message will not 
+		    // send update messages to the registered Observers
+		    notifyObservers();
+		}
+	}
+	
+	public void setNearPit(boolean b){
+		this.nearPit = b;
+	}
+	
+	public void setNearWumpus(boolean b){
+		this.nearWumpus = b;
+	}
+	
+	public boolean getNearPit(){
+		return this.nearPit;
+	}
+	
+	public boolean getNearWumpus(){
+		return this.nearWumpus;
+	}
+	
+	public boolean getDeath(){
+		return this.killedByWumpus;
 	}
 }

@@ -3,7 +3,6 @@ package view;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.io.File;
@@ -12,23 +11,21 @@ import java.util.Observable;
 import java.util.Observer;
 
 import javax.imageio.ImageIO;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
 
 import model.GameCell;
 import model.GameMap;
 
 public class GraphicsView extends JPanel implements Observer {
 	
-	private Image blood, goop, slime, slimepit, hunter, wumpus, ground, darkness;
+	private Image blood, goop, slime, slimepit, hunter, wumpus, ground, darkness, gameOver;
 	
 	private static final int CELLSINROW = 10;
 	private GameMap gameMap;
 	public GraphicsView(GameMap theMap) {
 		this.setLayout(new GridLayout(10,10));
 		this.setVisible(true);
-		this.setPreferredSize(new Dimension(625, 625));
+		this.setPreferredSize(new Dimension(500, 500));
 		this.setBackground(new Color(0, 51, 51));
 		this.setForeground(new Color(102, 153, 153));
 		this.gameMap = theMap;
@@ -42,6 +39,10 @@ public class GraphicsView extends JPanel implements Observer {
 			ground = ImageIO.read(new File("src/images/Ground.png"));
 			hunter = ImageIO.read(new File("src/images/TheHunter.png"));
 			darkness = ImageIO.read(new File("src/images/Darkness.png"));
+			
+			//Generated the Game over image from http://textcraft.net/
+			
+			gameOver = ImageIO.read(new File("src/images/Game-Over.png"));
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -73,7 +74,7 @@ public class GraphicsView extends JPanel implements Observer {
 		for (int i = 0; i < CELLSINROW; i++) {
 			for (int j = 0; j < CELLSINROW; j++) {
 				    if(otherObjects[j][i].getWumpus()){
-				    	g.drawImage(this.wumpus, i * xPosition, j * yPosition, this);
+				    	g.drawImage(this.wumpus, i * xPosition , j * yPosition, this);
 					}else if(otherObjects[j][i].getGoop()){
 						g.drawImage(this.goop, i * xPosition, j * yPosition, this);
 					}else if(otherObjects[j][i].getPit()){
@@ -83,14 +84,20 @@ public class GraphicsView extends JPanel implements Observer {
 					}else if(otherObjects[j][i].getSlime()){
 						g.drawImage(this.slime, i * xPosition, j * yPosition, this);
 					}
-				    if(j == gameMap.getHunter().getXPosition() && i == gameMap.getHunter().getYPosition()){
-				    	g.drawImage(this.hunter, i * xPosition, j * yPosition, this);
-				    }
+				 
 				    if(!otherObjects[j][i].getVisible()){
 				    	g.drawImage(darkness, i * xPosition, j * yPosition, this);
 				    }
+				    if(j == gameMap.getHunter().getXPosition() && i == gameMap.getHunter().getYPosition()){
+				    	g.drawImage(this.hunter, i * xPosition, j * yPosition, this);
+				    }
+				   
 			}
 		}
+		//If hunter goes on top of a pit or Wumpus or shoots a bad arrow
+   	 if(gameMap.getHunter().getIsDead()){
+	    		g.drawImage(this.gameOver, 100, 200, this);
+	    }
 		
 	}
 

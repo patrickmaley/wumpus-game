@@ -69,4 +69,5 @@ public class GameCell {
 	public boolean getHunter() {
 		return this.hasHunter;
 	}
+
 }
