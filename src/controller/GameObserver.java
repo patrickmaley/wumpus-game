@@ -10,7 +10,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Observer;
 
-import javax.swing.AbstractButton;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -22,8 +21,7 @@ import view.GraphicsView;
 import view.TextView;
 
 public class GameObserver extends JFrame {
-	
-	private JPanel graphicsView = new GraphicsView();
+
 	private GameMap theMap = new GameMap();
 	private JPanel buttonsPanel = new JPanel();
 	private GridBagConstraints jFrameConstraints = new GridBagConstraints();
@@ -31,6 +29,7 @@ public class GameObserver extends JFrame {
 	private JTabbedPane twoViews;
 	
 	private JPanel textView = new TextView(theMap.toString());
+	private JPanel graphicsView = new GraphicsView(theMap);
 	
 	private JButton moveUp = new JButton("^");
 	private JButton moveDown = new JButton("v");
@@ -66,7 +65,54 @@ public class GameObserver extends JFrame {
 
 	private void registerButtonListeners() {
 		moveUp.addActionListener(new MoveUpListener());
+		moveRight.addActionListener(new MoveRightListener());
+		moveLeft.addActionListener(new MoveLeftListener());
+		moveDown.addActionListener(new MoveDownListener());
+		shootUp.addActionListener(new ShootUpListener());
+		shootRight.addActionListener(new ShootRightListener());
+		shootDown.addActionListener(new ShootDownListener());
+		shootLeft.addActionListener(new ShootLeftListener());
+	}
+	private void gameOverScreen(boolean gameOver) {
+		if(gameOver){
+			this.gameTextArea.setText("Congratulations, you killed the wumpus!");
+		}else{
+			this.gameTextArea.setText("OH NO! You shot yourself!");
+		}
 		
+	}
+	private class ShootUpListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			boolean gameOver = theMap.shootArrow(Move.MOVE_UP);
+			gameOverScreen(gameOver);
+		}
+
+		
+	}
+	
+	private class ShootRightListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			boolean gameOver = theMap.shootArrow(Move.MOVE_RIGHT);
+			gameOverScreen(gameOver);
+		}
+	}
+	
+	private class ShootDownListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			boolean gameOver = theMap.shootArrow(Move.MOVE_DOWN);
+			gameOverScreen(gameOver);
+		}
+	}
+	
+	private class ShootLeftListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			boolean gameOver = theMap.shootArrow(Move.MOVE_LEFT);
+			gameOverScreen(gameOver);
+		}
 	}
 	
 	private class MoveUpListener implements ActionListener{
@@ -75,16 +121,39 @@ public class GameObserver extends JFrame {
 			theMap.setHunter(Move.MOVE_UP);
 		}
 	}
+	
+	private class MoveRightListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			theMap.setHunter(Move.MOVE_RIGHT);
+		}
+	}
+	
+	private class MoveLeftListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			theMap.setHunter(Move.MOVE_LEFT);
+		}
+	}
+	
+	private class MoveDownListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			theMap.setHunter(Move.MOVE_DOWN);
+		}
+	}
+	
 	private void setObservers() {
 		theMap.addObserver((Observer) textView);
-		
+		theMap.addObserver((Observer) graphicsView);
 	}
 
 	private void setGameArea() {
 		twoViews = new JTabbedPane();
 		
 		
-		twoViews.add(textView, "TextView");
+		twoViews.add(textView, "Text View");
+		twoViews.add(graphicsView, "Graphics View");
 		//jFrameConstraints.ipady = 0;
 		//jFrameConstraints.weightx = 1.0;
 		//jFrameConstraints.weighty = 1.0;
@@ -95,12 +164,15 @@ public class GameObserver extends JFrame {
 		//jFrameConstraints.gridy = 1;
 		add(twoViews, jFrameConstraints);
 	}
-
+	//http://stackoverflow.com/questions/3213045/centering-text-in-a-jtextarea-or-jtextpane-horizontal-text-alignment
+	//Learned how to center text in a jtextarea from this link
 	private void setGameTextArea() {
 		Dimension buttonPanelSize = new Dimension(300, 50);
 		gameTextArea.setPreferredSize(buttonPanelSize);
 		gameTextArea.setEditable(false);
+		gameTextArea.setFont(new Font("Verdana", Font.BOLD, 12));
 		gameTextArea.setBackground(new Color(13,77,77));
+		gameTextArea.setForeground(Color.WHITE);
 		//FrameConstraints.fill = GridBagConstraints.BOTH;
 		jFrameConstraints.ipady = 0;
 		jFrameConstraints.weightx = 1.0;

@@ -249,6 +249,15 @@ public class GameMap extends Observable{
 		if(direction == Move.MOVE_UP){
 			gameArray[(row - 1 + 10) % 10][col].setVisible(true);
 			this.getHunter().setXYPosition((row - 1 + 10) % 10, col);
+		}else if(direction == Move.MOVE_RIGHT){
+			gameArray[row][(col + 1) % 10].setVisible(true);
+			this.getHunter().setXYPosition(row, (col + 1) % 10);
+		}else if(direction == Move.MOVE_DOWN){
+			gameArray[(row + 1) % 10][col].setVisible(true);
+			this.getHunter().setXYPosition((row + 1) % 10, col);
+		}else if(direction == Move.MOVE_LEFT){
+			gameArray[row][(col -1 + 10) % 10].setVisible(true);
+			this.getHunter().setXYPosition(row, (col -1 + 10) % 10);
 		}
 		
 		 // Do NOT forget to tell this object the state has changed 
@@ -257,5 +266,42 @@ public class GameMap extends Observable{
 	    // Otherwise, the next notifyObservers message will not 
 	    // send update messages to the registered Observers
 	    notifyObservers();
+	}
+
+	public boolean shootArrow(Move direction) {
+		boolean wumpusKilled = false;
+		int row = this.getHunter().getXPosition();
+		int col = this.getHunter().getYPosition();
+		if(direction == Move.MOVE_UP || direction == Move.MOVE_DOWN){
+			for (int i = 0; i < gameArray.length; i++) {
+				if(gameArray[i][col].getWumpus()){
+					wumpusKilled = true;
+					break;
+				}
+			}
+		}else if(direction == Move.MOVE_RIGHT || direction == Move.MOVE_LEFT){
+			for (int i = 0; i < gameArray.length; i++) {
+				if(gameArray[row][i].getWumpus()){
+					wumpusKilled = true;
+					break;
+				}
+			}
+		}
+		for (int i = 0; i < gameArray.length; i++) {
+			for (int j = 0; j < gameArray.length; j++) {
+				gameArray[i][j].setVisible(true);
+			}
+		}
+		
+		this.setChanged();
+	    // Otherwise, the next notifyObservers message will not 
+	    // send update messages to the registered Observers
+	    notifyObservers();
+	    
+		if(wumpusKilled){
+			return true;
+		}else{
+			return false;
+		}
 	}
 }
