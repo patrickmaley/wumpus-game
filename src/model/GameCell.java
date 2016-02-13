@@ -1,6 +1,24 @@
 package model;
+/*Author: Patrick Maley
+ * 
+ *Class: CSC 335
+ * 
+ *Project: Hunt the Wumpus
+ * 
+ *Date: February 13, 2016
+ *
+ *Professor: Dr. Mercer
+ *
+ *Section Lead: Cindy Trieu
+ *
+ *Class Description: GameCell creates the individual cells for the GameMap class.
+ *Each cell holds all the necessary information to determine what should be displayed
+ *to the user in the game.
+ *
+ */
 
 public class GameCell {
+	//All the properties of a GameCell
 	private boolean isPit = false;
 	private boolean isVisible = false;
 	private boolean isSlime = false;
@@ -9,6 +27,8 @@ public class GameCell {
 	private boolean isGoop = false;
 	private boolean hasHunter = false;
 	
+	//All of the methods in this class are getters and setters 
+	//for the classes private data fields.
 	public void setPit(boolean set){
 		this.isPit = set;
 	}
